@@ -17,3 +17,8 @@ Finally, the **Google Sheets (Update) node** writes the normalized phone numbers
 1. Clean and standardize phone numbers automatically.
 2. Maintain consistent customer contact data.
 3. Improve data quality directly within Google Sheets.
+
+### Why This Is Powerful
+1. Removes the need for manual data cleaning.
+2. Ensures all phone numbers follow a single, reliable format.
+3. Improves compatibility with external systems (e.g., SMS APIs).
