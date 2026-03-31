@@ -12,3 +12,8 @@ The workflow then moves to the **Code Node** (Normalize Phones), where JavaScrip
 This step enforces data quality and prepares the phone numbers for reliable use in systems such as APIs, CRMs, or communication tools.
 
 Finally, the **Google Sheets (Update) node** writes the normalized phone numbers back into the same sheet. This creates a continuous data improvement loop, ensuring that the dataset remains clean, consistent, and ready for downstream usage.
+
+### Purpose of Workflow
+1. Clean and standardize phone numbers automatically.
+2. Maintain consistent customer contact data.
+3. Improve data quality directly within Google Sheets.
