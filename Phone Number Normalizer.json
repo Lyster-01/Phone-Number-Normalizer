@@ -1,0 +1,198 @@
+{
+  "name": "Phone Number Normalizer",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -128
+      ],
+      "id": "252187a2-4701-40fa-aae9-db4690006d14",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1U70rQPZvqboBD8_O_O_bmyHLPoXihAPXItE-xWD0IkU",
+          "mode": "list",
+          "cachedResultName": "Sample Data ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U70rQPZvqboBD8_O_O_bmyHLPoXihAPXItE-xWD0IkU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Customer_Data_2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U70rQPZvqboBD8_O_O_bmyHLPoXihAPXItE-xWD0IkU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -96,
+        -80
+      ],
+      "id": "0ae2f4a8-aae3-4b8b-8fef-0d6bc2a5dca0",
+      "name": "Read Customer Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8E5Ms8Y7ZgWH0sxZ",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to normalize a phone number to international format: 254XXXXXXXXX\nfunction normalizePhone(raw) {\n  // Convert to string in case it comes in as a number\n  let phone = String(raw).trim();\n\n  // Remove all non-digit characters (brackets, hyphens, spaces, etc.)\n  let digits = phone.replace(/\\D/g, '');\n\n  // Handle numbers starting with 0 (local Kenyan format e.g. 0712345678)\n  // Strip the leading 0 and prepend 254\n  if (digits.startsWith('0')) {\n    digits = '254' + digits.slice(1);\n  }\n\n  // Handle 9-digit numbers (missing country code entirely e.g. 712345678)\n  // Prepend 254 directly\n  if (digits.length === 9) {\n    digits = '254' + digits;\n  }\n\n  // At this point we expect a 12-digit number starting with 254\n  // If longer than 12 digits, trim from the left to keep the last 12\n  if (digits.length > 12) {\n    digits = digits.slice(-12);\n  }\n\n  // Validate: must be exactly 12 digits and start with 254\n  if (digits.length === 12 && digits.startsWith('254')) {\n    return digits; // e.g. \"254712345678\"\n  }\n\n  // If none of the above conditions matched, the number is invalid\n  return 'invalid';\n}\n\n// Process each incoming item from the Google Sheets node\nreturn $input.all().map(item => {\n  const data = item.json;\n\n  return {\n    json: {\n      row_number:    data.row_number,\n      customerName:  data.customerName,\n      email:         data.email,\n      \"Phone Number\": normalizePhone(data[\"Phone Number\"])\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        -96
+      ],
+      "id": "109e5f90-ccb5-43a9-979b-11f08539de35",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1U70rQPZvqboBD8_O_O_bmyHLPoXihAPXItE-xWD0IkU",
+          "mode": "list",
+          "cachedResultName": "Sample Data ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U70rQPZvqboBD8_O_O_bmyHLPoXihAPXItE-xWD0IkU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Customer_Data_2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U70rQPZvqboBD8_O_O_bmyHLPoXihAPXItE-xWD0IkU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "customerName": "={{ $json.customerName }}",
+            "Phone Number": "={{ $json[\"Phone Number\"] }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "customerName",
+              "displayName": "customerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        -48
+      ],
+      "id": "e10aa872-9991-4dcb-b1f1-b2caebccd13b",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dQRzSYD8pI1gxuAq",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Customer Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Customer Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "170ce83b-2004-46d4-aa69-96052e1cc139",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b19b2666f0186c1b9469a37c465c9758b4118a6b7c948721b8fdb43fce3ad9fd"
+  },
+  "id": "PUvpW63ORYG9vsjS",
+  "tags": []
+}
